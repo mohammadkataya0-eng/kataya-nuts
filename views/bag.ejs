@@ -13,20 +13,20 @@
 </head>
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
 
-  <!-- Static Logo Header -->
-  <header class="bg-[#b51916]">
-    <div class="flex justify-center py-3 border-b border-white/20">
-      <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
+  <!-- Fixed Navbar -->
+  <nav class="fixed top-0 left-0 w-full z-50 bg-[#991414] shadow-lg">
+    <div id="categoryNav"
+         class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white scrollbar-thin scrollbar-thumb-white/30">
     </div>
-  </header>
-
-  <!-- Floating Category Navbar -->
-  <nav id="categoryNav"
-       class="fixed top-[76px] left-0 w-full z-50 flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white bg-[#991414] shadow-md scrollbar-thin scrollbar-thumb-white/30">
   </nav>
 
-  <!-- Main -->
-  <main class="flex-grow container mx-auto px-4 sm:px-6 pt-56 pb-20 text-center">
+  <!-- Logo Section (below navbar) -->
+  <div class="pt-20 flex justify-center border-b border-white/20">
+    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
+  </div>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 sm:px-6 pt-10 pb-20 text-center">
     <h1 class="text-2xl sm:text-4xl font-bold mb-2">👜 Fill Your Bag – عبّئ حقيبتك</h1>
     <p class="text-white/90 text-base sm:text-lg mb-6 max-w-2xl mx-auto">
       Start by opening a bag and selecting your ingredients.
@@ -71,6 +71,7 @@
       nav.innerHTML = '';
 
       categories.filter(cat => !cat.archived).forEach(cat => {
+        // Create category section
         const section = document.createElement('section');
         section.id = `cat-${cat._id}`;
         const header = document.createElement('h2');
@@ -78,6 +79,7 @@
         header.textContent = cat.name;
         section.appendChild(header);
 
+        // Products
         const catItems = items.filter(i => i.category?._id === cat._id && !i.archived);
         const row = document.createElement('div');
         row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
@@ -104,17 +106,17 @@
           qty.className = 'flex flex-col items-center justify-center gap-3 text-center text-sm sm:text-base';
           qty.innerHTML = `
             <div class="flex gap-2">
-              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+1kg</button>
-              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+500g</button>
-              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+50g</button>
+              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+1kg</button>
+              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+500g</button>
+              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+50g</button>
             </div>
             <div class="font-bold text-gray-800 text-base sm:text-lg py-1">
               <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
             </div>
             <div class="flex gap-2">
-              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-1kg</button>
-              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-500g</button>
-              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-50g</button>
+              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-1kg</button>
+              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-500g</button>
+              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-50g</button>
             </div>
           `;
 
@@ -130,7 +132,7 @@
 
         const link = document.createElement('a');
         link.href = `#cat-${cat._id}`;
-        link.className = 'inline-block px-3 py-1 text-white hover:text-[#d89a63] transition';
+        link.className = 'inline-block px-3 py-1 hover:text-[#d89a63] transition';
         link.textContent = cat.name;
         nav.appendChild(link);
       });
