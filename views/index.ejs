@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Kataya Nuts - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col relative">
 
   <!-- Navbar -->
-  <nav class="relative flex justify-center items-center py-6 text-lg font-medium uppercase tracking-wide bg-[#b51916]">
+  <nav class="relative flex flex-col sm:flex-row justify-between sm:justify-center items-center gap-4 sm:gap-10 py-6 text-base sm:text-lg font-medium uppercase tracking-wide bg-[#b51916] px-6">
     <!-- Centered Nav Links -->
-    <div class="flex gap-10">
+    <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-10">
       <a href="/" class="hover:text-[#d89a63] transition">Home</a>
       <a href="/bag" class="hover:text-[#d89a63] transition">Your Bag</a>
       <a href="/checkout" class="hover:text-[#d89a63] transition">Checkout</a>
     </div>
 
     <!-- Hamburger Menu -->
-    <div class="absolute right-6 top-1/2 -translate-y-1/2">
-      <button onclick="toggleLoginMenu()" class="text-white text-2xl hover:text-[#d89a63] transition">
+    <div class="absolute right-6 top-1/2 -translate-y-1/2 sm:static sm:translate-y-0">
+      <button onclick="toggleLoginMenu()" class="text-white text-2xl hover:text-[#d89a63] transition sm:hidden">
         &#9776;
       </button>
     </div>
@@ -32,22 +33,22 @@
   </div>
 
   <!-- Hero Section -->
-  <main class="flex flex-col items-center justify-center flex-1 text-center px-6 py-16">
-    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-40 mb-6 drop-shadow-lg" />
+  <main class="flex flex-col items-center justify-center flex-1 text-center px-6 py-14 sm:py-20">
+    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-32 sm:w-40 mb-6 drop-shadow-lg" />
 
-    <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to Kataya Nuts</h1>
-    <p class="text-lg md:text-xl text-white/90 max-w-2xl">
+    <h1 class="text-3xl sm:text-5xl font-bold mb-4">Welcome to Kataya Nuts</h1>
+    <p class="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl">
       Kataya Nuts is your destination for premium roasted and raw nuts, handpicked and blended just for you. 
       Fill your own custom bags and send your order directly to WhatsApp — the experience is easy, fast, and delicious.
     </p>
 
-    <a href="/bag" class="mt-10 inline-block bg-white text-[#b51916] hover:bg-[#d89a63] hover:text-white px-8 py-3 rounded-full font-semibold text-lg transition">
+    <a href="/bag" class="mt-10 inline-block bg-white text-[#b51916] hover:bg-[#d89a63] hover:text-white px-6 sm:px-8 py-3 rounded-full font-semibold text-base sm:text-lg transition">
       🛍️ Start Creating Your Bag
     </a>
   </main>
 
   <!-- Footer -->
-  <footer class="text-center py-4 text-white/70 text-sm">
+  <footer class="text-center py-4 text-white/70 text-xs sm:text-sm">
     &copy; <%= new Date().getFullYear() %> Kataya Nuts. All rights reserved.
   </footer>
 
@@ -57,7 +58,6 @@
       menu.classList.toggle("hidden");
     }
 
-    // Hide the menu if clicked outside
     window.addEventListener('click', function (e) {
       const menu = document.getElementById("loginMenu");
       const button = document.querySelector('button[onclick="toggleLoginMenu()"]');
