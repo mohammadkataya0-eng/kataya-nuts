@@ -2,15 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout - Kataya Nuts</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
 
-  <main class="flex-grow container mx-auto px-6 py-10 text-center">
-    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-28 mx-auto mb-6" />
-    <h1 class="text-4xl font-bold mb-4">📋 Your Order – طلبك</h1>
-    <p class="text-white/90 text-lg mb-8 max-w-2xl mx-auto">Review your bags and send your order directly to WhatsApp.</p>
+  <!-- Header -->
+  <header class="flex justify-center py-4 border-b border-white/20 shadow bg-[#b51916]">
+    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 sm:px-6 py-10 text-center">
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4">📋 Your Order – طلبك</h1>
+    <p class="text-white/90 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
+      Review your bags and send your order directly to WhatsApp.
+    </p>
 
     <!-- Bag Summary -->
     <div id="bagList" class="bg-white text-gray-800 max-w-2xl mx-auto rounded-xl shadow-lg p-6 text-left mb-8">
@@ -18,18 +26,18 @@
     </div>
 
     <!-- Buttons -->
-    <div class="flex justify-center gap-4">
-      <a href="/bag"
-        class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full font-semibold transition">
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <a href="/bag" class="bg-[#d89a63] hover:bg-[#c0804f] text-white px-6 py-3 rounded-full font-semibold transition">
         🔙 Return to Bags
       </a>
       <a id="sendBtn" href="#" target="_blank"
-        class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold transition">
+         class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold transition">
         📱 Send Order via WhatsApp
       </a>
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="text-center py-4 text-white/70 text-sm">
     &copy; <%= new Date().getFullYear() %> Kataya Nuts. All rights reserved.
   </footer>
@@ -42,7 +50,6 @@
     async function loadItems() {
       const res = await fetch('/api/items');
       const items = await res.json();
-
       const priceMap = {};
       items.forEach(i => {
         priceMap[i._id] = { name: i.name, price: i.pricePerKg };
@@ -68,7 +75,7 @@
         bagDiv.appendChild(header);
 
         const ul = document.createElement("ul");
-        ul.className = "list-disc list-inside";
+        ul.className = "list-disc list-inside space-y-1 text-sm";
 
         let totalWeight = 0;
         let totalPrice = 0;
@@ -90,25 +97,24 @@
           message += `%0A- ${product.name}: ${weight.toFixed(2)} kg`;
         }
 
-        const weightLine = document.createElement("p");
-        weightLine.className = "text-sm text-gray-700 mt-2";
-        weightLine.textContent = `🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
         bagDiv.appendChild(ul);
-        bagDiv.appendChild(weightLine);
-        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
 
-        const priceLine = document.createElement("p");
-        priceLine.className = "text-sm text-gray-700";
-        priceLine.textContent = `💰 Estimated Price: $${totalPrice.toFixed(2)}`;
-        bagDiv.appendChild(priceLine);
+        const summary = document.createElement("div");
+        summary.className = "text-sm text-gray-700 mt-2 space-y-1";
+        summary.innerHTML = `
+          <p>🏷 Total Weight: ${totalWeight.toFixed(2)} kg</p>
+          <p>💰 Estimated Price: $${totalPrice.toFixed(2)}</p>
+        `;
+        bagDiv.appendChild(summary);
+        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
         message += `%0A💰 Estimated Price: $${totalPrice.toFixed(2)}%0A`;
 
         // Optional note
-        const label = document.createElement("label");
-        label.className = "block mt-3 text-sm font-semibold";
-        label.textContent = "✏️ Note for this bag:";
+        const noteLabel = document.createElement("label");
+        noteLabel.className = "block mt-3 text-sm font-semibold text-gray-800";
+        noteLabel.textContent = "✏️ Note for this bag:";
         const note = document.createElement("textarea");
-        note.className = "mt-1 p-2 border w-full rounded text-sm";
+        note.className = "mt-1 p-2 border w-full rounded text-sm text-gray-800";
         note.placeholder = "Add a note...";
         note.rows = 2;
         note.dataset.bagIndex = index;
@@ -123,7 +129,7 @@
           location.reload();
         };
 
-        bagDiv.appendChild(label);
+        bagDiv.appendChild(noteLabel);
         bagDiv.appendChild(note);
         bagDiv.appendChild(deleteBtn);
 
@@ -149,7 +155,6 @@
         sendBtn.href = `https://wa.me/${whatsappNumber}?text=${message}`;
         localStorage.removeItem("bagCart");
 
-        // Optional redirect
         setTimeout(() => {
           window.location.href = "/bag";
         }, 2000);
