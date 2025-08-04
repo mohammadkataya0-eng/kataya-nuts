@@ -14,11 +14,11 @@
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
 
   <!-- Floating Header -->
-  <header class="fixed top-0 left-0 w-full z-50 bg-[#b51916] shadow-lg">
+  <header class="fixed top-0 left-0 w-full z-50 bg-[#991414] shadow-lg">
     <div class="flex justify-center py-3 border-b border-white/20">
       <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
     </div>
-    <nav id="categoryNav" class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-[#b51916] bg-[#d89a63] scrollbar-thin scrollbar-thumb-white/30"></nav>
+    <nav id="categoryNav" class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white bg-[#991414] scrollbar-thin scrollbar-thumb-white/30"></nav>
   </header>
 
   <!-- Main -->
@@ -70,7 +70,7 @@
         const section = document.createElement('section');
         section.id = `cat-${cat._id}`;
         const header = document.createElement('h2');
-        header.className = 'text-[#d89a63] text-2xl font-bold mb-4';
+        header.className = 'text-white text-2xl font-bold mb-4';
         header.textContent = cat.name;
         section.appendChild(header);
 
