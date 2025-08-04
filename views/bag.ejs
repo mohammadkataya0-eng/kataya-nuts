@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Fill Your Bag - Kataya Nuts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
@@ -12,15 +13,16 @@
     <div class="flex justify-center py-3 border-b border-white/20">
       <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
     </div>
-    <nav id="categoryNav" class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white scrollbar-thin scrollbar-thumb-white/30">
-      <!-- Categories will be injected here -->
-    </nav>
+    <nav id="categoryNav"
+     class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-[#b51916] bg-[#d89a63] scrollbar-thin scrollbar-thumb-white/30">
+</nav>
+
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-6 pt-48 pb-16 text-center">
-    <h1 class="text-4xl font-bold mb-2">👜 Fill Your Bag – عبّئ حقيبتك</h1>
-    <p class="text-white/90 text-lg mb-6 max-w-2xl mx-auto">
+  <main class="flex-grow container mx-auto px-4 sm:px-6 pt-48 pb-20 text-center">
+    <h1 class="text-2xl sm:text-4xl font-bold mb-2">👜 Fill Your Bag – عبّئ حقيبتك</h1>
+    <p class="text-white/90 text-base sm:text-lg mb-6 max-w-2xl mx-auto">
       Start by opening a bag and selecting your ingredients.
     </p>
 
@@ -28,25 +30,31 @@
     <div id="productGrid" class="space-y-12 opacity-30 pointer-events-none transition"></div>
 
     <!-- Bag Saved Message -->
-    <p id="bagSaved" class="text-green-300 mt-6 text-lg hidden">
+    <p id="bagSaved" class="text-green-300 mt-6 text-base sm:text-lg hidden">
       ✅ Bag saved! You can open another one or proceed to checkout.
     </p>
-
-    <!-- Floating Controls -->
-    <div class="fixed bottom-4 left-4 z-50 space-y-2">
-      <button id="openBagBtn" onclick="openBag()" class="bg-white text-[#b51916] font-semibold px-6 py-3 rounded-full shadow hover:bg-[#d89a63] hover:text-white transition">
-        💼 Open New Bag
-      </button>
-      <button id="closeBagBtn" onclick="closeBag()" style="display: none;" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow transition">
-        ✅ Close Bag
-      </button>
-    </div>
-
-    <!-- Checkout Button -->
-    <a href="/checkout" class="fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold z-50">
-      🛒 Checkout
-    </a>
   </main>
+
+  <!-- Floating Controls -->
+  <div class="fixed bottom-4 left-4 z-50 space-y-2">
+    <button id="openBagBtn"
+            onclick="openBag()"
+            class="w-40 sm:w-auto bg-white text-[#b51916] font-semibold px-6 py-3 rounded-full shadow hover:bg-[#d89a63] hover:text-white transition">
+      💼 Open New Bag
+    </button>
+    <button id="closeBagBtn"
+            onclick="closeBag()"
+            style="display: none;"
+            class="w-40 sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow transition">
+      ✅ Close Bag
+    </button>
+  </div>
+
+  <!-- Checkout Button -->
+  <a href="/checkout"
+     class="fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold z-50 w-40 sm:w-auto text-center">
+    🛒 Checkout
+  </a>
 
   <script>
     let currentBag = {};
@@ -89,31 +97,31 @@
           const img = document.createElement('img');
           img.src = p.image || 'https://via.placeholder.com/300x200?text=No+Image';
           img.loading = 'lazy';
-          img.className = 'w-full h-48 object-cover rounded-lg mb-3';
+          img.className = 'w-full h-40 sm:h-48 object-cover rounded-lg mb-3';
 
           const title = document.createElement('div');
-          title.className = 'font-bold text-lg mb-1';
+          title.className = 'font-bold text-base sm:text-lg mb-1';
           title.textContent = p.name;
 
           const price = document.createElement('div');
-          price.className = 'text-red-700 font-semibold mb-3';
+          price.className = 'text-red-700 font-semibold mb-3 text-sm sm:text-base';
           price.textContent = `$${p.pricePerKg} / kg`;
 
           const qty = document.createElement('div');
-          qty.className = 'flex items-center justify-center gap-1 flex-wrap text-sm';
+          qty.className = 'flex flex-col sm:flex-row items-center justify-center gap-2 text-sm';
           qty.innerHTML = `
             <div class="flex flex-col gap-1">
-              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-2 py-1 rounded-full">-1kg</button>
-              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-2 py-1 rounded-full">-500g</button>
-              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-2 py-1 rounded-full">-50g</button>
+              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-2 py-1 rounded-full text-xs sm:text-sm">-1kg</button>
+              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-2 py-1 rounded-full text-xs sm:text-sm">-500g</button>
+              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-2 py-1 rounded-full text-xs sm:text-sm">-50g</button>
             </div>
-            <div class="px-4 py-1 font-bold text-gray-800">
+            <div class="px-4 py-1 font-bold text-gray-800 text-sm sm:text-base">
               <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
             </div>
             <div class="flex flex-col gap-1">
-              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full">+1kg</button>
-              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full">+500g</button>
-              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full">+50g</button>
+              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full text-xs sm:text-sm">+1kg</button>
+              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full text-xs sm:text-sm">+500g</button>
+              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-2 py-1 rounded-full text-xs sm:text-sm">+50g</button>
             </div>
           `;
 
@@ -129,7 +137,8 @@
 
         const link = document.createElement('a');
         link.href = `#cat-${cat._id}`;
-        link.className = 'inline-block px-3 py-1 hover:text-[#d89a63] transition';
+        link.className = 'inline-block px-3 py-1 hover:text-white transition';
+
         link.textContent = cat.name;
         nav.appendChild(link);
       });
