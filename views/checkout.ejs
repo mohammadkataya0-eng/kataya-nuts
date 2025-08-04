@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout - Kataya Nuts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
+
+  <main class="flex-grow container mx-auto px-6 py-10 text-center">
+    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-28 mx-auto mb-6" />
+    <h1 class="text-4xl font-bold mb-4">📋 Your Order – طلبك</h1>
+    <p class="text-white/90 text-lg mb-8 max-w-2xl mx-auto">Review your bags and send your order directly to WhatsApp.</p>
+
+    <!-- Bag Summary -->
+    <div id="bagList" class="bg-white text-gray-800 max-w-2xl mx-auto rounded-xl shadow-lg p-6 text-left mb-8">
+      <!-- Bags will be injected here -->
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex justify-center gap-4">
+      <a href="/bag"
+        class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full font-semibold transition">
+        🔙 Return to Bags
+      </a>
+      <a id="sendBtn" href="#" target="_blank"
+        class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold transition">
+        📱 Send Order via WhatsApp
+      </a>
+    </div>
+  </main>
+
+  <footer class="text-center py-4 text-white/70 text-sm">
+    &copy; <%= new Date().getFullYear() %> Kataya Nuts. All rights reserved.
+  </footer>
+
+  <script>
+    const bagCart = JSON.parse(localStorage.getItem("bagCart") || "[]");
+    const bagList = document.getElementById("bagList");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function loadItems() {
+      const res = await fetch('/api/items');
+      const items = await res.json();
+
+      const priceMap = {};
+      items.forEach(i => {
+        priceMap[i._id] = { name: i.name, price: i.pricePerKg };
+      });
+
+      if (bagCart.length === 0) {
+        bagList.innerHTML = `<p class="text-center text-lg text-gray-600">🛍️ No bags found. Go fill one!</p>`;
+        sendBtn.style.display = "none";
+        return;
+      }
+
+      let message = `Hello Kataya Nuts,%0A%0AI’d like to place the following order:%0A`;
+      let grandTotal = 0;
+
+      bagCart.forEach((bag, index) => {
+        const bagDiv = document.createElement("div");
+        bagDiv.className = "mb-6 border-b border-gray-300 pb-4";
+        bagDiv.dataset.bagIndex = index;
+
+        const header = document.createElement("h3");
+        header.className = "font-bold text-xl mb-2";
+        header.textContent = `👜 Bag ${index + 1}`;
+        bagDiv.appendChild(header);
+
+        const ul = document.createElement("ul");
+        ul.className = "list-disc list-inside";
+
+        let totalWeight = 0;
+        let totalPrice = 0;
+
+        for (const [id, qty] of Object.entries(bag)) {
+          const product = priceMap[id];
+          if (!product) continue;
+
+          const weight = parseFloat(qty);
+          const linePrice = weight * product.price;
+
+          totalWeight += weight;
+          totalPrice += linePrice;
+
+          const li = document.createElement("li");
+          li.textContent = `${product.name}: ${weight.toFixed(2)} kg`;
+          ul.appendChild(li);
+
+          message += `%0A- ${product.name}: ${weight.toFixed(2)} kg`;
+        }
+
+        const weightLine = document.createElement("p");
+        weightLine.className = "text-sm text-gray-700 mt-2";
+        weightLine.textContent = `🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
+        bagDiv.appendChild(ul);
+        bagDiv.appendChild(weightLine);
+        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
+
+        const priceLine = document.createElement("p");
+        priceLine.className = "text-sm text-gray-700";
+        priceLine.textContent = `💰 Estimated Price: $${totalPrice.toFixed(2)}`;
+        bagDiv.appendChild(priceLine);
+        message += `%0A💰 Estimated Price: $${totalPrice.toFixed(2)}%0A`;
+
+        // Optional note
+        const label = document.createElement("label");
+        label.className = "block mt-3 text-sm font-semibold";
+        label.textContent = "✏️ Note for this bag:";
+        const note = document.createElement("textarea");
+        note.className = "mt-1 p-2 border w-full rounded text-sm";
+        note.placeholder = "Add a note...";
+        note.rows = 2;
+        note.dataset.bagIndex = index;
+
+        // Delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "mt-3 text-red-600 hover:underline text-sm";
+        deleteBtn.textContent = "🗑️ Delete this bag";
+        deleteBtn.onclick = () => {
+          bagCart.splice(index, 1);
+          localStorage.setItem("bagCart", JSON.stringify(bagCart));
+          location.reload();
+        };
+
+        bagDiv.appendChild(label);
+        bagDiv.appendChild(note);
+        bagDiv.appendChild(deleteBtn);
+
+        bagList.appendChild(bagDiv);
+        grandTotal += totalPrice;
+      });
+
+      message += `%0A🧾 Grand Total: $${grandTotal.toFixed(2)}%0A`;
+
+      sendBtn.onclick = () => {
+        const notes = bagList.querySelectorAll("textarea");
+        notes.forEach(note => {
+          const value = note.value.trim();
+          if (value) {
+            const bagIndex = parseInt(note.dataset.bagIndex) + 1;
+            message += `%0A✏️ Note for Bag ${bagIndex}: ${encodeURIComponent(value)}`;
+          }
+        });
+
+        message += `%0A%0AThank you!`;
+
+        const whatsappNumber = "96171570585";
+        sendBtn.href = `https://wa.me/${whatsappNumber}?text=${message}`;
+        localStorage.removeItem("bagCart");
+
+        // Optional redirect
+        setTimeout(() => {
+          window.location.href = "/bag";
+        }, 2000);
+      };
+    }
+
+    loadItems();
+  </script>
+
+</body>
+</html>

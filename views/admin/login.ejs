@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login - Kataya Nuts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#b51916] text-white min-h-screen flex items-center justify-center px-4">
+
+  <form id="loginForm" class="bg-white text-gray-800 p-8 rounded-xl shadow-lg max-w-sm w-full space-y-6">
+    <h1 class="text-2xl font-bold text-center text-[#b51916]">Admin Login</h1>
+
+    <div>
+      <label class="block mb-1 font-medium">Username</label>
+      <input type="text" id="username" class="w-full border p-2 rounded" required />
+    </div>
+
+    <div>
+      <label class="block mb-1 font-medium">Password</label>
+      <input type="password" id="password" class="w-full border p-2 rounded" required />
+    </div>
+
+    <button type="submit" class="w-full bg-[#b51916] text-white py-2 rounded hover:bg-[#d89a63]">
+      Log In
+    </button>
+
+    <p id="error" class="text-sm text-red-600 text-center hidden">Invalid login</p>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const error = document.getElementById('error');
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Login failed');
+
+        localStorage.setItem('kataya_admin_token', data.token);
+        window.location.href = '/admin';
+      } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+      }
+    });
+  </script>
+
+</body>
+</html>
