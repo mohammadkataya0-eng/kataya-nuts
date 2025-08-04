@@ -79,7 +79,7 @@
         section.id = `cat-${cat._id}`;
 
         const header = document.createElement('h2');
-        header.className = 'text-white text-2xl font-bold mb-4';
+        header.className = 'text-[#d89a63] text-2xl font-bold mb-4'; // Updated color
         header.textContent = cat.name;
         section.appendChild(header);
 
@@ -107,20 +107,20 @@
           price.textContent = `$${p.pricePerKg} / kg`;
 
           const qty = document.createElement('div');
-          qty.className = 'flex flex-col sm:flex-row items-center justify-center gap-2 text-sm sm:text-base';
+          qty.className = 'flex flex-col items-center justify-center gap-2 text-sm sm:text-base text-center';
           qty.innerHTML = `
-            <div class="flex flex-col sm:flex-col-reverse gap-1">
-              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-base sm:text-sm">+1kg</button>
-              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-base sm:text-sm">+500g</button>
-              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-base sm:text-sm">+50g</button>
+            <div class="flex gap-1">
+              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-xs sm:text-sm">+1kg</button>
+              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-xs sm:text-sm">+500g</button>
+              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-3 py-2 rounded-full text-xs sm:text-sm">+50g</button>
             </div>
-            <div class="px-4 py-1 font-bold text-gray-800 text-sm sm:text-base text-center">
+            <div class="font-bold text-gray-800">
               <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
             </div>
-            <div class="flex flex-col sm:flex-col-reverse gap-1">
-              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-base sm:text-sm">-1kg</button>
-              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-base sm:text-sm">-500g</button>
-              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-base sm:text-sm">-50g</button>
+            <div class="flex gap-1">
+              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-xs sm:text-sm">-1kg</button>
+              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-xs sm:text-sm">-500g</button>
+              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-3 py-2 rounded-full text-xs sm:text-sm">-50g</button>
             </div>
           `;
 
