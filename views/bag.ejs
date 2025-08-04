@@ -13,16 +13,20 @@
 </head>
 <body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
 
-  <!-- Floating Header -->
-  <header class="fixed top-0 left-0 w-full z-50 bg-[#991414] shadow-lg">
+  <!-- Static Logo Header -->
+  <header class="bg-[#b51916]">
     <div class="flex justify-center py-3 border-b border-white/20">
       <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
     </div>
-    <nav id="categoryNav" class="flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white bg-[#991414] scrollbar-thin scrollbar-thumb-white/30"></nav>
   </header>
 
+  <!-- Floating Category Navbar -->
+  <nav id="categoryNav"
+       class="fixed top-[76px] left-0 w-full z-50 flex gap-3 px-4 py-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base text-white bg-[#991414] shadow-md scrollbar-thin scrollbar-thumb-white/30">
+  </nav>
+
   <!-- Main -->
-  <main class="flex-grow container mx-auto px-4 sm:px-6 pt-48 pb-20 text-center">
+  <main class="flex-grow container mx-auto px-4 sm:px-6 pt-56 pb-20 text-center">
     <h1 class="text-2xl sm:text-4xl font-bold mb-2">👜 Fill Your Bag – عبّئ حقيبتك</h1>
     <p class="text-white/90 text-base sm:text-lg mb-6 max-w-2xl mx-auto">
       Start by opening a bag and selecting your ingredients.
@@ -126,7 +130,7 @@
 
         const link = document.createElement('a');
         link.href = `#cat-${cat._id}`;
-        link.className = 'inline-block px-3 py-1 hover:text-white transition';
+        link.className = 'inline-block px-3 py-1 text-white hover:text-[#d89a63] transition';
         link.textContent = cat.name;
         nav.appendChild(link);
       });
