@@ -109,18 +109,19 @@
           qty.className = 'flex flex-col items-center justify-center gap-3 text-center text-sm sm:text-base';
           qty.innerHTML = `
             <div class="flex gap-2">
-              <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+1kg</button>
-              <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+500g</button>
-              <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full min-w-[80px]">+50g</button>
-            </div>
-            <div class="font-bold text-gray-800 text-base sm:text-lg py-1">
-              <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
-            </div>
-            <div class="flex gap-2">
-              <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-1kg</button>
-              <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-500g</button>
-              <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full min-w-[80px]">-50g</button>
-            </div>
+  <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+50g</button>
+  <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+500g</button>
+  <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+1kg</button>
+</div>
+<div class="font-bold text-gray-800 text-base sm:text-lg py-1">
+  <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
+</div>
+<div class="flex gap-2">
+  <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-50g</button>
+  <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-500g</button>
+  <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-1kg</button>
+</div>
+
           `;
 
           card.appendChild(img);
