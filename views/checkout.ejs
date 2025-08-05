@@ -28,11 +28,11 @@
     <!-- Buttons -->
     <div class="flex flex-col sm:flex-row justify-center gap-4">
       <a href="/bag" class="bg-[#d89a63] hover:bg-[#c0804f] text-white px-6 py-3 rounded-full font-semibold transition">
-        🔙 Return to Bags
+        🔙 Return to Bags – العودة إلى الأكياس
       </a>
       <a id="sendBtn" href="#" target="_blank"
          class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold transition">
-        📱 Send Order via WhatsApp
+        📱 Send Order via WhatsApp – إرسال الطلب عبر واتساب
       </a>
     </div>
   </main>
@@ -61,7 +61,7 @@
         return;
       }
 
-      let message = `Hello Kataya Nuts,%0A%0AI’d like to place the following order:%0A`;
+      let message = `Hello Kataya Nuts,%0Aمرحباً كاتايا ناتس،%0A%0AI’d like to place the following order:%0Aأرغب في تقديم الطلب التالي:%0A%0A`;
       let grandTotal = 0;
 
       bagCart.forEach((bag, index) => {
@@ -71,7 +71,7 @@
 
         const header = document.createElement("h3");
         header.className = "font-bold text-xl mb-2";
-        header.textContent = `👜 Bag ${index + 1}`;
+        header.textContent = `👜 Bag ${index + 1} – الكيس ${index + 1}`;
         bagDiv.appendChild(header);
 
         const ul = document.createElement("ul");
@@ -94,7 +94,7 @@
           li.textContent = `${product.name}: ${weight.toFixed(2)} kg`;
           ul.appendChild(li);
 
-          message += `%0A- ${product.name}: ${weight.toFixed(2)} kg`;
+          message += `- ${product.name}: ${weight.toFixed(2)} kg – ${product.name}: ${weight.toFixed(2)} كلغ%0A`;
         }
 
         bagDiv.appendChild(ul);
@@ -106,10 +106,11 @@
           <p>💰 Estimated Price: $${totalPrice.toFixed(2)}</p>
         `;
         bagDiv.appendChild(summary);
-        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
-        message += `%0A💰 Estimated Price: $${totalPrice.toFixed(2)}%0A`;
 
-        // Optional note
+        message += `🏷 Total Weight: ${totalWeight.toFixed(2)} kg – الوزن الإجمالي: ${totalWeight.toFixed(2)} كلغ%0A`;
+        message += `💰 Estimated Price: $${totalPrice.toFixed(2)} – السعر التقديري: $${totalPrice.toFixed(2)}%0A%0A`;
+
+        // Note input
         const noteLabel = document.createElement("label");
         noteLabel.className = "block mt-3 text-sm font-semibold text-gray-800";
         noteLabel.textContent = "✏️ Note for this bag:";
@@ -137,7 +138,7 @@
         grandTotal += totalPrice;
       });
 
-      message += `%0A🧾 Grand Total: $${grandTotal.toFixed(2)}%0A`;
+      message += `🧾 Grand Total: $${grandTotal.toFixed(2)} – المجموع الكلي: $${grandTotal.toFixed(2)}%0A`;
 
       sendBtn.onclick = () => {
         const notes = bagList.querySelectorAll("textarea");
@@ -145,11 +146,11 @@
           const value = note.value.trim();
           if (value) {
             const bagIndex = parseInt(note.dataset.bagIndex) + 1;
-            message += `%0A✏️ Note for Bag ${bagIndex}: ${encodeURIComponent(value)}`;
+            message += `✏️ Note for Bag ${bagIndex}: ${encodeURIComponent(value)} – ملاحظة للكيس ${bagIndex}: ${encodeURIComponent(value)}%0A`;
           }
         });
 
-        message += `%0A%0AThank you!`;
+        message += `%0AThank you! – شكراً لكم!`;
 
         const whatsappNumber = "96171570585";
         sendBtn.href = `https://wa.me/${whatsappNumber}?text=${message}`;
