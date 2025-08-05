@@ -15,7 +15,7 @@
 
   <!-- Main Content -->
   <main class="flex-grow container mx-auto px-4 sm:px-6 py-10 text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold mb-4">\ud83d\udccb Your Order – \u0637\u0644\u0628\u0643</h1>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4">📋 Your Order – طلبك</h1>
     <p class="text-white/90 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
       Review your bags and send your order directly to WhatsApp.
     </p>
@@ -25,14 +25,14 @@
       <!-- Bags will be injected here -->
     </div>
 
-    <!-- Buttons -->
+    <!-- Buttons (Updated) -->
     <div class="flex flex-col sm:flex-row justify-center gap-4">
       <a href="/bag" class="bg-[#d89a63] hover:bg-[#c0804f] text-white px-6 py-3 rounded-full font-semibold transition">
-        \ud83d\udd19 Return to Bags – \u0627\u0644\u0639\u0648\u062f\u0629 \u0625\u0644\u0649 \u0627\u0644\u0623\u0643\u064a\u0627\u0633
+        🔙 Return to Bags – العودة إلى الأكياس
       </a>
       <a id="sendBtn" href="#" target="_blank"
          class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold transition">
-        \ud83d\udcf1 Send Order via WhatsApp – \u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0637\u0644\u0628 \u0639\u0628\u0631 \u0648\u0627\u062a\u0633\u0627\u0628
+        📱 Send Order via WhatsApp – إرسال الطلب عبر واتساب
       </a>
     </div>
   </main>
@@ -56,12 +56,12 @@
       });
 
       if (bagCart.length === 0) {
-        bagList.innerHTML = `<p class="text-center text-lg text-gray-600">\ud83d\udecd\ufe0f No bags found. Go fill one!</p>`;
+        bagList.innerHTML = `<p class="text-center text-lg text-gray-600">🛍️ No bags found. Go fill one!</p>`;
         sendBtn.style.display = "none";
         return;
       }
 
-      let message = `\u202aHello Kataya Nuts,\n\u0645\u0631\u062d\u0628\u0627 \u0643\u0627\u062a\u0627\u064a\u0627 \u0646\u0627\u062a\u0633\u060c\n\nI'd like to place the following order:\n\u0623\u0631\u063a\u0628 \u0641\u064a \u062a\u0642\u062f\u064a\u0645 \u0627\u0644\u0637\u0644\u0628 \u0627\u0644\u062a\u0627\u0644\u064a:\n`;
+      let message = `Hello Kataya Nuts,%0A%0AI’d like to place the following order:%0A`;
       let grandTotal = 0;
 
       bagCart.forEach((bag, index) => {
@@ -71,7 +71,7 @@
 
         const header = document.createElement("h3");
         header.className = "font-bold text-xl mb-2";
-        header.textContent = `\ud83d\udc5c Bag ${index + 1} – \u0627\u0644\u0643\u064a\u0633 ${index + 1}`;
+        header.textContent = `👜 Bag ${index + 1}`;
         bagDiv.appendChild(header);
 
         const ul = document.createElement("ul");
@@ -94,7 +94,7 @@
           li.textContent = `${product.name}: ${weight.toFixed(2)} kg`;
           ul.appendChild(li);
 
-          message += `- ${product.name}: ${weight.toFixed(2)} kg\n- \u0627\u0644\u0645\u0646\u062a\u062c: ${product.name}, \u0627\u0644\u0648\u0632\u0646: ${weight.toFixed(2)} \u0643\u0644\u063a\n`;
+          message += `%0A- ${product.name}: ${weight.toFixed(2)} kg`;
         }
 
         bagDiv.appendChild(ul);
@@ -102,26 +102,27 @@
         const summary = document.createElement("div");
         summary.className = "text-sm text-gray-700 mt-2 space-y-1";
         summary.innerHTML = `
-          <p>\ud83c\udf7f Total Weight: ${totalWeight.toFixed(2)} kg</p>
-          <p>\ud83d\udcb0 Estimated Price: $${totalPrice.toFixed(2)}</p>
+          <p>🏷 Total Weight: ${totalWeight.toFixed(2)} kg</p>
+          <p>💰 Estimated Price: $${totalPrice.toFixed(2)}</p>
         `;
         bagDiv.appendChild(summary);
+        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
+        message += `%0A💰 Estimated Price: $${totalPrice.toFixed(2)}%0A`;
 
-        message += `\n\ud83c\udf7f Total Weight: ${totalWeight.toFixed(2)} kg\n\u0627\u0644\u0648\u0632\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a: ${totalWeight.toFixed(2)} \u0643\u0644\u063a\n`;
-        message += `\ud83d\udcb0 Estimated Price: $${totalPrice.toFixed(2)}\n\u0627\u0644\u0633\u0639\u0631 \u0627\u0644\u062a\u0642\u062f\u064a\u0631\u064a: $${totalPrice.toFixed(2)}\n\n`;
-
+        // Optional note
         const noteLabel = document.createElement("label");
         noteLabel.className = "block mt-3 text-sm font-semibold text-gray-800";
-        noteLabel.textContent = "\u270f\ufe0f Note for this bag:";
+        noteLabel.textContent = "✏️ Note for this bag:";
         const note = document.createElement("textarea");
         note.className = "mt-1 p-2 border w-full rounded text-sm text-gray-800";
         note.placeholder = "Add a note...";
         note.rows = 2;
         note.dataset.bagIndex = index;
 
+        // Delete button
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "mt-3 text-red-600 hover:underline text-sm";
-        deleteBtn.textContent = "\ud83d\uddd1\ufe0f Delete this bag";
+        deleteBtn.textContent = "🗑️ Delete this bag";
         deleteBtn.onclick = () => {
           bagCart.splice(index, 1);
           localStorage.setItem("bagCart", JSON.stringify(bagCart));
@@ -136,7 +137,7 @@
         grandTotal += totalPrice;
       });
 
-      message += `\ud83d\udccb Grand Total: $${grandTotal.toFixed(2)}\n\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u0643\u0644\u064a: $${grandTotal.toFixed(2)}\n`;
+      message += `%0A🧾 Grand Total: $${grandTotal.toFixed(2)}%0A`;
 
       sendBtn.onclick = () => {
         const notes = bagList.querySelectorAll("textarea");
@@ -144,14 +145,14 @@
           const value = note.value.trim();
           if (value) {
             const bagIndex = parseInt(note.dataset.bagIndex) + 1;
-            message += `\n\u270f\ufe0f Note for Bag ${bagIndex}: ${value}\n\u0645\u0644\u0627\u062d\u0638\u0629 \u0644\u0644\u0643\u064a\u0633 ${bagIndex}: ${value}`;
+            message += `%0A✏️ Note for Bag ${bagIndex}: ${encodeURIComponent(value)}`;
           }
         });
 
-        message += `\n\nThank you!\n\u0634\u0643\u0631\u0627 \u0644\u0643\u0645!`;
+        message += `%0A%0AThank you!`;
 
         const whatsappNumber = "96171570585";
-        sendBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+        sendBtn.href = `https://wa.me/${whatsappNumber}?text=${message}`;
         localStorage.removeItem("bagCart");
 
         setTimeout(() => {
