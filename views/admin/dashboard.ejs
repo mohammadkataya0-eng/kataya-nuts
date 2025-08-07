@@ -94,7 +94,6 @@
 
     async function submitPasswordChange(e) {
       e.preventDefault();
-
       const currentPassword = document.getElementById('oldPassword').value;
       const newPassword = document.getElementById('newPassword').value;
 
@@ -121,6 +120,9 @@
       const res = await fetch('/api/categories', { headers: { Authorization: 'Bearer ' + token } });
       const categories = await res.json();
 
+      // Sort by position
+      categories.sort((a, b) => a.position - b.position);
+
       const select = document.getElementById('itemCategory');
       const filter = document.getElementById('filterCategory');
       const list = document.getElementById('categoryList');
@@ -136,7 +138,7 @@
         li.className = 'flex justify-between items-center bg-gray-100 p-2 rounded';
 
         const input = document.createElement('input');
-        input.value = cat.name;
+        input.value = `${cat.name} (Pos: ${cat.position})`;
         input.disabled = true;
         input.className = 'bg-transparent font-bold';
 
@@ -162,13 +164,17 @@
       input.focus();
       button.textContent = 'Save';
       button.onclick = async () => {
+        const [namePart, posPart] = input.value.split('(Pos:');
+        const name = namePart.trim();
+        const position = parseInt(posPart?.replace(')', '') || 0);
+
         await fetch(`/api/categories/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + token
           },
-          body: JSON.stringify({ name: input.value })
+          body: JSON.stringify({ name, position })
         });
         fetchCategories();
       }
@@ -203,6 +209,7 @@
       list.innerHTML = '';
 
       const filtered = categoryId ? items.filter(i => i.category?._id === categoryId) : items;
+      filtered.sort((a, b) => a.position - b.position);
 
       filtered.forEach(i => {
         const li = document.createElement('li');
@@ -213,12 +220,12 @@
         img.className = 'w-16 h-16 object-cover rounded';
 
         const desc = document.createElement('div');
-        desc.innerHTML = `🥜 <strong>${i.name}</strong> - $${i.pricePerKg} / kg (${i.category?.name || 'N/A'}) ${i.archived ? '<span class="text-red-500">(archived)</span>' : ''}`;
+        desc.innerHTML = `🥜 <strong>${i.name}</strong> - $${i.pricePerKg} / kg (${i.category?.name || 'N/A'}) [Pos: ${i.position}] ${i.archived ? '<span class="text-red-500">(archived)</span>' : ''}`;
 
         const actions = document.createElement('div');
         actions.className = 'space-x-2 text-sm';
         actions.innerHTML = `
-          <button onclick="loadItemForEdit('${i._id}', '${i.name}', ${i.pricePerKg}, '${i.category?._id || ''}')" class="text-blue-600 hover:underline">Edit</button>
+          <button onclick="loadItemForEdit('${i._id}', '${i.name}', ${i.pricePerKg}, '${i.category?._id || ''}', ${i.position})" class="text-blue-600 hover:underline">Edit</button>
           <button onclick="deleteItem('${i._id}', '${i.image || ''}')" class="text-red-600 hover:underline">Delete</button>
           <button onclick="toggleArchiveItem('${i._id}', ${i.archived})" class="text-yellow-600 hover:underline">
             ${i.archived ? 'Unarchive' : 'Archive'}
@@ -232,6 +239,14 @@
       });
     }
 
+    function loadItemForEdit(id, name, price, categoryId, position) {
+      document.getElementById('itemId').value = id;
+      document.getElementById('itemName').value = name;
+      document.getElementById('itemPrice').value = price;
+      document.getElementById('itemCategory').value = categoryId;
+      document.getElementById('itemPosition').value = position;
+    }
+
     async function deleteItem(id, imagePath) {
       if (!confirm("Delete this item and its image?")) return;
       await fetch(`/api/items/${id}`, {
@@ -243,13 +258,6 @@
         body: JSON.stringify({ imagePath })
       });
       fetchItems();
-    }
-
-    function loadItemForEdit(id, name, price, categoryId) {
-      document.getElementById('itemId').value = id;
-      document.getElementById('itemName').value = name;
-      document.getElementById('itemPrice').value = price;
-      document.getElementById('itemCategory').value = categoryId;
     }
 
     async function toggleArchiveItem(id, archived) {
@@ -266,10 +274,8 @@
 
     document.getElementById('categoryForm').addEventListener('submit', async e => {
       e.preventDefault();
-
       const name = document.getElementById('categoryName').value;
       const position = parseInt(document.getElementById('categoryPosition').value, 10);
-
       await fetch('/api/categories', {
         method: 'POST',
         headers: {
@@ -278,16 +284,12 @@
         },
         body: JSON.stringify({ name, position })
       });
-
-      document.getElementById('categoryName').value = '';
-      document.getElementById('categoryPosition').value = '';
-
+      e.target.reset();
       fetchCategories();
     });
 
     document.getElementById('itemForm').addEventListener('submit', async e => {
       e.preventDefault();
-
       const id = document.getElementById('itemId').value;
       const formData = new FormData();
       formData.append('name', document.getElementById('itemName').value);
@@ -296,19 +298,15 @@
       formData.append('position', document.getElementById('itemPosition').value);
       const file = document.getElementById('itemImage').files[0];
       if (file) formData.append('image', file);
-
       const endpoint = id ? `/api/items/${id}` : '/api/items';
       const method = id ? 'PUT' : 'POST';
-
       await fetch(endpoint, {
         method,
         headers: { Authorization: 'Bearer ' + token },
         body: formData
       });
-
-      document.getElementById('itemForm').reset();
+      e.target.reset();
       document.getElementById('itemId').value = '';
-
       fetchItems();
     });
 

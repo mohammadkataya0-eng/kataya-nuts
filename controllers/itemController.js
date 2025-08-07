@@ -1,9 +1,10 @@
+// ✅ item.controller.js
 const Item = require('../models/Item');
 const Category = require('../models/Category');
 const path = require('path');
 const fs = require('fs');
 
-// Add a new item
+// POST /api/items
 exports.addItem = async (req, res) => {
   const { name, pricePerKg, category, position } = req.body;
   const image = req.file ? `/images/items/${req.file.filename}` : null;
@@ -20,13 +21,13 @@ exports.addItem = async (req, res) => {
   res.json(item);
 };
 
-// Get all items with category populated
+// GET /api/items
 exports.getItems = async (req, res) => {
-  const items = await Item.find().populate('category').sort({ position: 1 }); // Sort by position
+  const items = await Item.find().populate('category').sort({ position: 1 });
   res.json(items);
 };
 
-// Update an item
+// PUT /api/items/:id
 exports.updateItem = async (req, res) => {
   const { id } = req.params;
   const { name, pricePerKg, category, position } = req.body;
@@ -45,7 +46,7 @@ exports.updateItem = async (req, res) => {
   res.json(item);
 };
 
-// Delete an item
+// DELETE /api/items/:id
 exports.deleteItem = async (req, res) => {
   const { id } = req.params;
 
@@ -69,7 +70,7 @@ exports.deleteItem = async (req, res) => {
   }
 };
 
-// Archive / Unarchive item
+// PATCH /api/items/:id/archive
 exports.toggleArchiveItem = async (req, res) => {
   const { id } = req.params;
   const { archived } = req.body;

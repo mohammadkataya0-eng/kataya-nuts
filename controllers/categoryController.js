@@ -1,3 +1,4 @@
+// ✅ category.controller.js
 const Category = require('../models/Category');
 const Item = require('../models/Item');
 
