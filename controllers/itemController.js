@@ -6,10 +6,8 @@ const fs = require('fs');
 
 // POST /api/items
 exports.addItem = async (req, res) => {
-  const { name, pricePerKg, category, position, isCountBased } = req.body;
-  if (typeof isCountBased !== 'undefined') item.isCountBased = isCountBased;
-
-
+  const { name, pricePerKg, category, position } = req.body;
+  const isCountBased = req.body.isCountBased === 'true' || req.body.isCountBased === true;
   const image = req.file ? `/images/items/${req.file.filename}` : null;
 
   if (!name || !pricePerKg || !category || position === undefined)
@@ -19,7 +17,7 @@ exports.addItem = async (req, res) => {
   if (!categoryExists)
     return res.status(404).json({ message: 'Category not found' });
 
-  const item = new Item({ name, pricePerKg, category, position, image,isCountBased});
+  const item = new Item({ name, pricePerKg, category, position, image, isCountBased });
   await item.save();
   res.json(item);
 };
@@ -33,8 +31,8 @@ exports.getItems = async (req, res) => {
 // PUT /api/items/:id
 exports.updateItem = async (req, res) => {
   const { id } = req.params;
-  const { name, pricePerKg, category, position, isCountBased } = req.body;
-
+  const { name, pricePerKg, category, position } = req.body;
+  const isCountBased = req.body.isCountBased === 'true' || req.body.isCountBased === true;
   const image = req.file ? `/images/items/${req.file.filename}` : null;
 
   const item = await Item.findById(id);
@@ -45,6 +43,7 @@ exports.updateItem = async (req, res) => {
   if (category) item.category = category;
   if (position !== undefined) item.position = position;
   if (image) item.image = image;
+  item.isCountBased = isCountBased;
 
   await item.save();
   res.json(item);
