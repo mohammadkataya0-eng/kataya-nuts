@@ -39,6 +39,7 @@
         <summary class="text-xl font-semibold cursor-pointer mb-2">➕ Manage Categories</summary>
         <form id="categoryForm" class="flex flex-wrap gap-4 mb-4">
           <input type="text" id="categoryName" placeholder="Category Name" class="border p-2 rounded w-64" required />
+          <input type="number" id="categoryPosition" placeholder="Position" class="border p-2 rounded w-32" required />
           <button type="submit" class="bg-[#b51916] text-white px-4 py-2 rounded hover:bg-[#d89a63]">Add</button>
         </form>
         <ul id="categoryList" class="space-y-2"></ul>
@@ -55,6 +56,7 @@
           <select id="itemCategory" class="border p-2 rounded" required>
             <option value="">Select category</option>
           </select>
+          <input type="number" id="itemPosition" placeholder="Position" class="border p-2 rounded" required />
           <input type="file" id="itemImage" accept="image/*" class="border p-2 rounded" />
           <input type="hidden" id="itemId" />
           <button type="submit" class="col-span-full bg-[#b51916] text-white px-4 py-2 rounded hover:bg-[#d89a63]">Save Item</button>
@@ -90,32 +92,30 @@
       document.getElementById('newPassword').value = '';
     }
 
-   async function submitPasswordChange(e) {
-  e.preventDefault();
+    async function submitPasswordChange(e) {
+      e.preventDefault();
 
-  const currentPassword = document.getElementById('oldPassword').value;
-  const newPassword = document.getElementById('newPassword').value;
+      const currentPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
 
-  const res = await fetch('/api/admin/change-password', {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token
-    },
-    body: JSON.stringify({ currentPassword, newPassword })
-  });
+      const res = await fetch('/api/admin/change-password', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
 
-  const data = await res.json();
+      const data = await res.json();
 
-  if (res.ok) {
-    alert('Password updated successfully!');
-    closePasswordModal();
-  } else {
-    alert(data.message || 'Failed to update password');
-  }
-}
-
-
+      if (res.ok) {
+        alert('Password updated successfully!');
+        closeChangePasswordModal();
+      } else {
+        alert(data.message || 'Failed to update password');
+      }
+    }
 
     async function fetchCategories() {
       const res = await fetch('/api/categories', { headers: { Authorization: 'Bearer ' + token } });
@@ -266,8 +266,10 @@
 
     document.getElementById('categoryForm').addEventListener('submit', async e => {
       e.preventDefault();
+
       const name = document.getElementById('categoryName').value;
-      const position = document.getElementById('categoryPosition').value;
+      const position = parseInt(document.getElementById('categoryPosition').value, 10);
+
       await fetch('/api/categories', {
         method: 'POST',
         headers: {
@@ -276,12 +278,16 @@
         },
         body: JSON.stringify({ name, position })
       });
-      e.target.reset();
+
+      document.getElementById('categoryName').value = '';
+      document.getElementById('categoryPosition').value = '';
+
       fetchCategories();
     });
 
     document.getElementById('itemForm').addEventListener('submit', async e => {
       e.preventDefault();
+
       const id = document.getElementById('itemId').value;
       const formData = new FormData();
       formData.append('name', document.getElementById('itemName').value);
@@ -300,7 +306,9 @@
         body: formData
       });
 
-      e.target.reset();
+      document.getElementById('itemForm').reset();
+      document.getElementById('itemId').value = '';
+
       fetchItems();
     });
 
