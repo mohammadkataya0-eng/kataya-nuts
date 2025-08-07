@@ -1,34 +1,35 @@
 const Item = require('../models/Item');
 const Category = require('../models/Category');
 const path = require('path');
+const fs = require('fs');
 
 // Add a new item
 exports.addItem = async (req, res) => {
-  const { name, pricePerKg, category } = req.body;
+  const { name, pricePerKg, category, position } = req.body;
   const image = req.file ? `/images/items/${req.file.filename}` : null;
 
-  if (!name || !pricePerKg || !category)
-    return res.status(400).json({ message: 'Name, price, and category are required.' });
+  if (!name || !pricePerKg || !category || position === undefined)
+    return res.status(400).json({ message: 'Name, price, category, and position are required.' });
 
   const categoryExists = await Category.findById(category);
   if (!categoryExists)
     return res.status(404).json({ message: 'Category not found' });
 
-  const item = new Item({ name, pricePerKg, category, image });
+  const item = new Item({ name, pricePerKg, category, position, image });
   await item.save();
   res.json(item);
 };
 
 // Get all items with category populated
 exports.getItems = async (req, res) => {
-  const items = await Item.find().populate('category').sort({ createdAt: -1 });
+  const items = await Item.find().populate('category').sort({ position: 1 }); // Sort by position
   res.json(items);
 };
 
 // Update an item
 exports.updateItem = async (req, res) => {
   const { id } = req.params;
-  const { name, pricePerKg, category } = req.body;
+  const { name, pricePerKg, category, position } = req.body;
   const image = req.file ? `/images/items/${req.file.filename}` : null;
 
   const item = await Item.findById(id);
@@ -37,14 +38,12 @@ exports.updateItem = async (req, res) => {
   if (name) item.name = name;
   if (pricePerKg) item.pricePerKg = pricePerKg;
   if (category) item.category = category;
+  if (position !== undefined) item.position = position;
   if (image) item.image = image;
 
   await item.save();
   res.json(item);
 };
-
-const fs = require('fs');
-
 
 // Delete an item
 exports.deleteItem = async (req, res) => {

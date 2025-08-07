@@ -1,32 +1,37 @@
 const Category = require('../models/Category');
+const Item = require('../models/Item');
 
 // POST /api/categories
 exports.addCategory = async (req, res) => {
-  const { name } = req.body;
+  const { name, position } = req.body;
   if (!name) return res.status(400).json({ message: 'Category name required' });
 
   const exists = await Category.findOne({ name });
   if (exists) return res.status(400).json({ message: 'Category already exists' });
 
-  const category = new Category({ name });
+  const category = new Category({ name, position });
   await category.save();
   res.json(category);
 };
 
 // GET /api/categories
 exports.getCategories = async (req, res) => {
-  const categories = await Category.find().sort({ createdAt: -1 });
+  const categories = await Category.find().sort({ position: 1 }); // sorted by position
   res.json(categories);
 };
 
 // PUT /api/categories/:id
 exports.updateCategory = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, position } = req.body;
 
   if (!name) return res.status(400).json({ message: 'Name is required' });
 
-  const updated = await Category.findByIdAndUpdate(id, { name }, { new: true });
+  const updated = await Category.findByIdAndUpdate(
+    id,
+    { name, position },
+    { new: true }
+  );
   if (!updated) return res.status(404).json({ message: 'Category not found' });
 
   res.json(updated);
@@ -41,18 +46,14 @@ exports.deleteCategory = async (req, res) => {
   res.json({ message: 'Category deleted' });
 };
 
-const Item = require('../models/Item');
-
 // PATCH /api/categories/:id/archive
 exports.archiveCategory = async (req, res) => {
   const { id } = req.params;
   const { archived } = req.body;
 
-  // 1. Update the category
   const category = await Category.findByIdAndUpdate(id, { archived }, { new: true });
   if (!category) return res.status(404).json({ message: 'Category not found' });
 
-  // 2. Update all items that belong to this category
   await Item.updateMany({ category: id }, { archived });
 
   res.json({

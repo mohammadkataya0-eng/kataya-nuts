@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const itemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   pricePerKg: { type: Number, required: true },
- image: { type: String, default: null },
+  image: { type: String, default: null },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   archived: { type: Boolean, default: false },
+  position: { type: Number, default: 0 }, // ✅ Added field for ordering
   createdAt: { type: Date, default: Date.now }
 });
 

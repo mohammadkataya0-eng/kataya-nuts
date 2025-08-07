@@ -97,12 +97,12 @@
   const newPassword = document.getElementById('newPassword').value;
 
   const res = await fetch('/api/admin/change-password', {
-    method: 'PATCH', // ✅ should be PATCH, not POST
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + token
     },
-    body: JSON.stringify({ currentPassword, newPassword }) // ✅ these must match backend
+    body: JSON.stringify({ currentPassword, newPassword })
   });
 
   const data = await res.json();
@@ -267,13 +267,14 @@
     document.getElementById('categoryForm').addEventListener('submit', async e => {
       e.preventDefault();
       const name = document.getElementById('categoryName').value;
+      const position = document.getElementById('categoryPosition').value;
       await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name, position })
       });
       e.target.reset();
       fetchCategories();
@@ -286,22 +287,18 @@
       formData.append('name', document.getElementById('itemName').value);
       formData.append('pricePerKg', document.getElementById('itemPrice').value);
       formData.append('category', document.getElementById('itemCategory').value);
+      formData.append('position', document.getElementById('itemPosition').value);
       const file = document.getElementById('itemImage').files[0];
       if (file) formData.append('image', file);
 
-      if (id) {
-        await fetch(`/api/items/${id}`, {
-          method: 'PUT',
-          headers: { Authorization: 'Bearer ' + token },
-          body: formData
-        });
-      } else {
-        await fetch('/api/items', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + token },
-          body: formData
-        });
-      }
+      const endpoint = id ? `/api/items/${id}` : '/api/items';
+      const method = id ? 'PUT' : 'POST';
+
+      await fetch(endpoint, {
+        method,
+        headers: { Authorization: 'Bearer ' + token },
+        body: formData
+      });
 
       e.target.reset();
       fetchItems();
