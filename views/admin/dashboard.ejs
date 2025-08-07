@@ -47,28 +47,38 @@
     </section>
 
     <!-- Section: Manage Items -->
-    <section>
-      <details>
-        <summary class="text-xl font-semibold cursor-pointer mb-2">🛒 Manage Items</summary>
-        <form id="itemForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4" enctype="multipart/form-data">
-          <input type="text" id="itemName" placeholder="Item name" class="border p-2 rounded" required />
-          <input type="number" step="0.01" id="itemPrice" placeholder="Price per kg" class="border p-2 rounded" required />
-          <select id="itemCategory" class="border p-2 rounded" required>
-            <option value="">Select category</option>
-          </select>
-          <input type="number" id="itemPosition" placeholder="Position" class="border p-2 rounded" required />
-          <label class="flex items-center gap-2">
-            <input type="checkbox" id="itemIsCountBased" />
-            Count Based (e.g. pieces instead of kg)
-          </label>
-          <input type="file" id="itemImage" accept="image/*" class="border p-2 rounded" />
-          <input type="hidden" id="itemId" />
-          <button type="submit" class="col-span-full bg-[#b51916] text-white px-4 py-2 rounded hover:bg-[#d89a63]">Save Item</button>
-        </form>
+<!-- Section: Manage Items -->
+<section>
+  <details open>
+    <summary class="text-xl font-semibold cursor-pointer mb-2">🛒 Manage Items</summary>
 
-        <!-- [unchanged filter dropdown and item list UI] -->
-      </details>
-    </section>
+    <!-- ✅ Category Filter -->
+    <select id="filterCategory" class="border p-2 rounded mb-4 w-full sm:w-64">
+      <option value="">All Categories</option>
+    </select>
+
+    <!-- ✅ Item Form -->
+    <form id="itemForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4" enctype="multipart/form-data">
+      <input type="text" id="itemName" placeholder="Item name" class="border p-2 rounded" required />
+      <input type="number" step="0.01" id="itemPrice" placeholder="Price per kg" class="border p-2 rounded" required />
+      <select id="itemCategory" class="border p-2 rounded" required>
+        <option value="">Select category</option>
+      </select>
+      <input type="number" id="itemPosition" placeholder="Position" class="border p-2 rounded" required />
+      <label class="flex items-center gap-2">
+        <input type="checkbox" id="itemIsCountBased" />
+        Count Based (e.g. pieces instead of kg)
+      </label>
+      <input type="file" id="itemImage" accept="image/*" class="border p-2 rounded" />
+      <input type="hidden" id="itemId" />
+      <button type="submit" class="col-span-full bg-[#b51916] text-white px-4 py-2 rounded hover:bg-[#d89a63]">Save Item</button>
+    </form>
+
+    <!-- ✅ List of Items -->
+    <ul id="itemList" class="space-y-2"></ul>
+  </details>
+</section>
+
   </main>
   <script>
     const token = localStorage.getItem("kataya_admin_token");
