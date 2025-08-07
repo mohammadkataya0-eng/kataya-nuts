@@ -25,7 +25,7 @@
       <!-- Bags will be injected here -->
     </div>
 
-    <!-- Buttons (Updated) -->
+    <!-- Buttons -->
     <div class="flex flex-col sm:flex-row justify-center gap-4">
       <a href="/bag" class="bg-[#d89a63] hover:bg-[#c0804f] text-white px-6 py-3 rounded-full font-semibold transition">
         🔙 Return to Bags – العودة إلى الأكياس
@@ -52,7 +52,11 @@
       const items = await res.json();
       const priceMap = {};
       items.forEach(i => {
-        priceMap[i._id] = { name: i.name, price: i.pricePerKg };
+        priceMap[i._id] = {
+          name: i.name,
+          price: i.pricePerKg,
+          isCountBased: i.isCountBased
+        };
       });
 
       if (bagCart.length === 0) {
@@ -77,24 +81,26 @@
         const ul = document.createElement("ul");
         ul.className = "list-disc list-inside space-y-1 text-sm";
 
-        let totalWeight = 0;
+        let totalQty = 0;
         let totalPrice = 0;
 
         for (const [id, qty] of Object.entries(bag)) {
           const product = priceMap[id];
           if (!product) continue;
 
-          const weight = parseFloat(qty);
-          const linePrice = weight * product.price;
-
-          totalWeight += weight;
+          const quantity = parseFloat(qty);
+          const linePrice = quantity * product.price;
+          totalQty += quantity;
           totalPrice += linePrice;
 
+          const unit = product.isCountBased ? 'pcs' : 'kg';
+          const formattedQty = product.isCountBased ? `${quantity}` : `${quantity.toFixed(2)}`;
+
           const li = document.createElement("li");
-          li.textContent = `${product.name}: ${weight.toFixed(2)} kg`;
+          li.textContent = `${product.name}: ${formattedQty} ${unit}`;
           ul.appendChild(li);
 
-          message += `%0A- ${product.name}: ${weight.toFixed(2)} kg`;
+          message += `%0A- ${product.name}: ${formattedQty} ${unit}`;
         }
 
         bagDiv.appendChild(ul);
@@ -102,11 +108,9 @@
         const summary = document.createElement("div");
         summary.className = "text-sm text-gray-700 mt-2 space-y-1";
         summary.innerHTML = `
-          <p>🏷 Total Weight: ${totalWeight.toFixed(2)} kg</p>
           <p>💰 Estimated Price: $${totalPrice.toFixed(2)}</p>
         `;
         bagDiv.appendChild(summary);
-        message += `%0A🏷 Total Weight: ${totalWeight.toFixed(2)} kg`;
         message += `%0A💰 Estimated Price: $${totalPrice.toFixed(2)}%0A`;
 
         // Optional note
