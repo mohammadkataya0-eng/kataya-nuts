@@ -20,7 +20,7 @@
     </div>
   </nav>
 
-  <!-- Logo Section (below navbar) -->
+  <!-- Logo Section -->
   <div class="pt-20 flex justify-center border-b border-white/20">
     <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24" />
   </div>
@@ -41,123 +41,130 @@
   <div class="fixed bottom-4 left-4 z-50 space-y-2">
     <button id="openBagBtn" onclick="openBag()" class="w-40 sm:w-auto bg-white text-[#b51916] font-semibold px-6 py-3 rounded-full shadow hover:bg-[#d89a63] hover:text-white transition">
       💼 Open New Bag – افتح كيس جديد
-
     </button>
     <button id="closeBagBtn" onclick="closeBag()" style="display: none;" class="w-40 sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow transition">
       ✅ Close Bag – إغلاق الكيس
-
     </button>
   </div>
 
   <!-- Checkout Button -->
   <button onclick="goToCheckout()" class="fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold z-50 w-40 sm:w-auto text-center">
     🛒 Checkout – إتمام الطلب
-
   </button>
 
-  <!-- Script -->
   <script>
     let currentBag = {};
     let bagOpen = false;
     const bagCart = JSON.parse(localStorage.getItem("bagCart") || "[]");
 
     async function fetchProducts() {
-  const [itemsRes, categoriesRes] = await Promise.all([
-    fetch('/api/items'),
-    fetch('/api/categories')
-  ]);
-  let items = await itemsRes.json();
-  let categories = await categoriesRes.json();
+      const [itemsRes, categoriesRes] = await Promise.all([
+        fetch('/api/items'),
+        fetch('/api/categories')
+      ]);
+      let items = await itemsRes.json();
+      let categories = await categoriesRes.json();
 
-  // ✅ Sort items and categories by position
-  items = items.filter(i => !i.archived).sort((a, b) => a.position - b.position);
-  categories = categories.filter(cat => !cat.archived).sort((a, b) => a.position - b.position);
+      items = items.filter(i => !i.archived).sort((a, b) => a.position - b.position);
+      categories = categories.filter(cat => !cat.archived).sort((a, b) => a.position - b.position);
 
-  const grid = document.getElementById('productGrid');
-  const nav = document.getElementById('categoryNav');
-  grid.innerHTML = '';
-  nav.innerHTML = '';
+      const grid = document.getElementById('productGrid');
+      const nav = document.getElementById('categoryNav');
+      grid.innerHTML = '';
+      nav.innerHTML = '';
 
-  categories.forEach(cat => {
-    const section = document.createElement('section');
-    section.id = `cat-${cat._id}`;
+      categories.forEach(cat => {
+        const section = document.createElement('section');
+        section.id = `cat-${cat._id}`;
 
-    const header = document.createElement('h2');
-    header.className = 'text-white text-2xl font-bold mb-4';
-    header.textContent = cat.name;
-    section.appendChild(header);
+        const header = document.createElement('h2');
+        header.className = 'text-white text-2xl font-bold mb-4';
+        header.textContent = cat.name;
+        section.appendChild(header);
 
-    const catItems = items.filter(i => i.category?._id === cat._id);
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+        const catItems = items.filter(i => i.category?._id === cat._id);
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
 
-    catItems.forEach(p => {
-      currentBag[p._id] = 0;
-      const card = document.createElement('div');
-      card.className = 'bg-white text-gray-800 rounded-xl p-4 shadow-md';
+        catItems.forEach(p => {
+          currentBag[p._id] = 0;
+          const card = document.createElement('div');
+          card.className = 'bg-white text-gray-800 rounded-xl p-4 shadow-md';
 
-      const img = document.createElement('img');
-      img.src = p.image || 'https://via.placeholder.com/300x200?text=No+Image';
-      img.loading = 'lazy';
-      img.className = 'w-full h-40 sm:h-48 object-cover rounded-lg mb-3';
+          const img = document.createElement('img');
+          img.src = p.image || 'https://via.placeholder.com/300x200?text=No+Image';
+          img.loading = 'lazy';
+          img.className = 'w-full h-40 sm:h-48 object-cover rounded-lg mb-3';
 
-      const title = document.createElement('div');
-      title.className = 'font-bold text-base sm:text-lg mb-1';
-      title.textContent = p.name;
+          const title = document.createElement('div');
+          title.className = 'font-bold text-base sm:text-lg mb-1';
+          title.textContent = p.name;
 
-      const price = document.createElement('div');
-      price.className = 'text-red-700 font-semibold mb-3 text-sm sm:text-base';
-      price.textContent = `$${p.pricePerKg} / kg`;
+          const price = document.createElement('div');
+          price.className = 'text-red-700 font-semibold mb-3 text-sm sm:text-base';
+          price.textContent = `$${p.pricePerKg} / ${p.isCountBased ? 'count' : 'kg'}`;
 
-      const qty = document.createElement('div');
-      qty.className = 'flex flex-col items-center justify-center gap-3 text-center text-sm sm:text-base';
-      qty.innerHTML = `
-        <div class="flex gap-2">
-          <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+50g</button>
-          <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+500g</button>
-          <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+1kg</button>
-        </div>
-        <div class="font-bold text-gray-800 text-base sm:text-lg py-1">
-          <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-50g</button>
-          <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-500g</button>
-          <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-1kg</button>
-        </div>
-      `;
+          const qty = document.createElement('div');
+          qty.className = 'flex flex-col items-center justify-center gap-3 text-center text-sm sm:text-base';
 
-      card.appendChild(img);
-      card.appendChild(title);
-      card.appendChild(price);
-      card.appendChild(qty);
-      row.appendChild(card);
-    });
+          if (p.isCountBased) {
+            qty.innerHTML = `
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+1</button>
+                <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-1</button>
+              </div>
+              <div class="font-bold text-gray-800 text-base sm:text-lg py-1">
+                <span id="qty-${p._id}">0</span> <span class="text-gray-500">pcs</span>
+              </div>
+            `;
+          } else {
+            qty.innerHTML = `
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', 0.05)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+50g</button>
+                <button onclick="updateQty('${p._id}', 0.5)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+500g</button>
+                <button onclick="updateQty('${p._id}', 1)" class="bg-[#d89a63] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">+1kg</button>
+              </div>
+              <div class="font-bold text-gray-800 text-base sm:text-lg py-1">
+                <span id="qty-${p._id}">0.00</span> <span class="text-gray-500">kg</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', -0.05)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-50g</button>
+                <button onclick="updateQty('${p._id}', -0.5)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-500g</button>
+                <button onclick="updateQty('${p._id}', -1)" class="bg-[#b51916] text-white px-4 py-3 rounded-full text-sm min-w-[80px]">-1kg</button>
+              </div>
+            `;
+          }
 
-    section.appendChild(row);
-    grid.appendChild(section);
+          card.appendChild(img);
+          card.appendChild(title);
+          card.appendChild(price);
+          card.appendChild(qty);
+          row.appendChild(card);
+        });
 
-    const link = document.createElement('a');
-    link.href = `#cat-${cat._id}`;
-    link.className = 'inline-block px-3 py-1 hover:text-[#d89a63] transition';
-    link.textContent = cat.name;
-    nav.appendChild(link);
-  });
-}
+        section.appendChild(row);
+        grid.appendChild(section);
 
+        const link = document.createElement('a');
+        link.href = `#cat-${cat._id}`;
+        link.className = 'inline-block px-3 py-1 hover:text-[#d89a63] transition';
+        link.textContent = cat.name;
+        nav.appendChild(link);
+      });
+    }
 
     function updateQty(itemId, delta) {
       if (!bagOpen) return;
       const newVal = Math.max(0, parseFloat(currentBag[itemId] || 0) + delta);
       currentBag[itemId] = parseFloat(newVal.toFixed(2));
-      document.getElementById(`qty-${itemId}`).textContent = currentBag[itemId].toFixed(2);
+      document.getElementById(`qty-${itemId}`).textContent = currentBag[itemId] % 1 === 0 ? newVal.toFixed(0) : newVal.toFixed(2);
     }
 
     function openBag() {
       Object.keys(currentBag).forEach(id => {
         currentBag[id] = 0;
         const el = document.getElementById(`qty-${id}`);
-        if (el) el.textContent = '0.00';
+        if (el) el.textContent = '0';
       });
       document.getElementById('productGrid').classList.remove("opacity-30", "pointer-events-none");
       document.getElementById('bagSaved').classList.add("hidden");

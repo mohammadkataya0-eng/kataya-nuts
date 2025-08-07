@@ -1,4 +1,3 @@
-// ✅ item.model.js
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
@@ -7,7 +6,8 @@ const itemSchema = new mongoose.Schema({
   image: { type: String, default: null },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   archived: { type: Boolean, default: false },
-  position: { type: Number, default: 0 }, // ordering field
+  position: { type: Number, default: 0 },
+  isCountBased: { type: Boolean, default: false }, // ✅ New field added here
   createdAt: { type: Date, default: Date.now }
 });
 
