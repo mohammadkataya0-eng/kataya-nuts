@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fill Your Bag - Kataya Nuts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    html, input, button { touch-action: manipulation; }
+    .category-chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .category-chip:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.5);
+    }
+    @media (min-width: 1024px) {
+      .category-chip {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col">
+
+  <%- include('partials/header') %>
+
+  <script>
+    (function guard() {
+      const token = localStorage.getItem('userToken');
+      if (!token) {
+        window.location.href = '/signin';
+      }
+    })();
+  </script>
+
+  <!-- Main Content -->
+  <main class="flex-grow w-full pt-16 pb-20">
+    <div class="flex flex-col lg:flex-row gap-6 w-full">
+      <aside class="lg:w-[260px] fade-in px-4 lg:px-6">
+        <div class="glass-card p-4 flex flex-col gap-4 sticky top-24 max-h-[75vh]">
+          <div class="text-sm sm:text-base font-semibold uppercase tracking-wide text-white/70 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-white/70"></span>
+            Categories
+          </div>
+          <div id="categoryNav"
+               class="flex flex-wrap lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto whitespace-nowrap text-sm sm:text-base text-white scrollbar-thin scrollbar-thumb-white/30 pr-2">
+          </div>
+        </div>
+      </aside>
+
+      <section class="flex-1 text-center px-4 sm:px-6">
+        <div class="border-b border-white/20 pb-6 mb-6">
+          <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-20 sm:w-24 fade-in mx-auto" />
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-bold.mb-2 fade-in">Fill Your Bag</h1>
+        <p class="text-white/90 text-base sm:text-lg mb-6 max-w-2xl mx-auto fade-in delay-1">
+          Start by opening a bag and selecting your ingredients.
+        </p>
+        <div id="productGrid" class="space-y-12 opacity-30 pointer-events-none transition"></div>
+        <p id="bagSaved" class="text-green-300 mt-6 text-base sm:text-lg hidden">
+          Bag saved! You can open another one or proceed to checkout.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <!-- Bag Controls -->
+  <div class="fixed bottom-4 left-4 z-50 space-y-2">
+    <button id="openBagBtn" onclick="openBag()" class="primary-btn w-40 sm:w-auto text-center">
+      Open New Bag
+    </button>
+    <button id="closeBagBtn" onclick="closeBag()" style="display: none;" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow transition text-center w-40 sm:w-auto">
+      Close Bag
+    </button>
+  </div>
+
+  <!-- Checkout Button -->
+  <button onclick="goToCheckout()" class="fixed bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold z-50 w-40 sm:w-auto text-center">
+    Checkout
+  </button>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    let currentBag = {};
+    let bagOpen = false;
+    const bagCart = JSON.parse(localStorage.getItem("bagCart") || "[]");
+
+    async function fetchProducts() {
+      const [itemsRes, categoriesRes] = await Promise.all([
+        fetch('/api/items'),
+        fetch('/api/categories')
+      ]);
+      let items = await itemsRes.json();
+      let categories = await categoriesRes.json();
+
+      items = items.filter(i => !i.archived).sort((a, b) => a.position - b.position);
+      categories = categories.filter(cat => !cat.archived).sort((a, b) => a.position - b.position);
+
+      const grid = document.getElementById('productGrid');
+      const nav = document.getElementById('categoryNav');
+      grid.innerHTML = '';
+      nav.innerHTML = '';
+
+      categories.forEach(cat => {
+        const section = document.createElement('section');
+        section.id = `cat-${cat._id}`;
+
+        const header = document.createElement('h2');
+        header.className = 'text-white text-2xl font-bold mb-4';
+        header.textContent = cat.name;
+        section.appendChild(header);
+
+        const catItems = items.filter(i => i.category?._id === cat._id);
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+
+        catItems.forEach(p => {
+          currentBag[p._id] = 0;
+          const card = document.createElement('div');
+          card.className = 'glass-card text-left text-white rounded-xl p-6 shadow-lg fade-in border border-white/10 relative overflow-hidden transition-transform duration-200 hover:scale-[1.03] hover:border-white/40';
+          card.innerHTML = '<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 45%);"></div>';
+          card.style.position = 'relative';
+
+          const img = document.createElement('img');
+          img.src = p.image || 'https://via.placeholder.com/300x200?text=No+Image';
+          img.loading = 'lazy';
+          img.className = 'w-full h-52 sm:h-64 object-contain bg-white/10 rounded-lg mb-3';
+
+          const title = document.createElement('div');
+          title.className = 'font-bold text-base sm:text-lg mb-1';
+          title.textContent = p.name;
+
+          const price = document.createElement('div');
+          price.className = 'text-[#d89a63] font-semibold mb-3 text-sm sm:text-base';
+          price.textContent = `$${p.pricePerKg} / ${p.isCountBased ? 'count' : 'kg'}`;
+
+          const qty = document.createElement('div');
+          qty.className = 'flex flex-col items-center justify-center gap-3 text-center text-sm sm:text-base';
+
+          if (p.isCountBased) {
+            qty.innerHTML = `
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', 1)" class="primary-btn px-4 py-3 min-w-[80px]">+</button>
+                <button onclick="updateQty('${p._id}', -1)" class="secondary-btn px-4 py-3 min-w-[80px]">-</button>
+              </div>
+              <div class="font-bold text-white text-base sm:text-lg py-1">
+                <span id="qty-${p._id}">0</span> <span class="text-white/70">pcs</span>
+              </div>
+            `;
+          } else {
+            qty.innerHTML = `
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', 0.05)" class="primary-btn px-4 py-3 min-w-[80px]">+50g</button>
+                <button onclick="updateQty('${p._id}', 0.5)" class="primary-btn px-4 py-3 min-w-[80px]">+500g</button>
+                <button onclick="updateQty('${p._id}', 1)" class="primary-btn px-4 py-3 min-w-[80px]">+1kg</button>
+              </div>
+              <div class="font-bold text-white text-base sm:text-lg py-1">
+                <span id="qty-${p._id}">0.00</span> <span class="text-white/70">kg</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="updateQty('${p._id}', -0.05)" class="secondary-btn px-4 py-3 min-w-[80px]">-50g</button>
+                <button onclick="updateQty('${p._id}', -0.5)" class="secondary-btn px-4 py-3 min-w-[80px]">-500g</button>
+                <button.onclick="updateQty('${p._id}', -1)" class="secondary-btn px-4 py-3 min-w-[80px]">-1kg</button>
+              </div>
+            `;
+          }
+
+          const contentWrapper = document.createElement('div');
+          contentWrapper.className = 'relative z-10 flex flex-col gap-3';
+          contentWrapper.appendChild(img);
+          contentWrapper.appendChild(title);
+          contentWrapper.appendChild(price);
+          contentWrapper.appendChild(qty);
+
+          card.appendChild(contentWrapper);
+          row.appendChild(card);
+        });
+
+        section.appendChild(row);
+        grid.appendChild(section);
+
+        const link = document.createElement('a');
+        link.href = `#cat-${cat._id}`;
+        link.className = 'category-chip';
+        link.textContent = cat.name;
+        nav.appendChild(link);
+      });
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = text;
+      toast.classList.remove('hidden');
+      toast.classList.add('pulse-once');
+      setTimeout(() => toast.classList.add('hidden'), 2000);
+    }
+
+    function updateQty(itemId, delta) {
+      if (!bagOpen) return;
+      const newVal = Math.max(0, parseFloat(currentBag[itemId] || 0) + delta);
+      currentBag[itemId] = parseFloat(newVal.toFixed(2));
+      const qtyEl = document.getElementById(`qty-${itemId}`);
+      if (qtyEl) {
+        qtyEl.textContent = Number.isInteger(currentBag[itemId])
+          ? currentBag[itemId]
+          : currentBag[itemId].toFixed(2);
+      }
+    }
+
+    function openBag() {
+      Object.keys(currentBag).forEach(id => {
+        currentBag[id] = 0;
+        const el = document.getElementById(`qty-${id}`);
+        if (el) el.textContent = '0';
+      });
+      document.getElementById('productGrid').classList.remove("opacity-30", "pointer-events-none");
+      document.getElementById('bagSaved').classList.add("hidden");
+      document.getElementById('openBagBtn').style.display = 'none';
+      document.getElementById('closeBagBtn').style.display = 'inline-block';
+      bagOpen = true;
+    }
+
+    function closeBag() {
+      const filtered = {};
+      Object.entries(currentBag).forEach(([id, val]) => {
+        if (parseFloat(val) > 0) filtered[id] = parseFloat(val);
+      });
+      if (Object.keys(filtered).length === 0) return alert("Your bag is empty!");
+      bagCart.push(filtered);
+      localStorage.setItem("bagCart", JSON.stringify(bagCart));
+      bagOpen = false;
+      document.getElementById('productGrid').classList.add("opacity-30", "pointer-events-none");
+      document.getElementById('bagSaved').classList.remove("hidden");
+      document.getElementById('openBagBtn').style.display = 'inline-block';
+      document.getElementById('closeBagBtn').style.display = 'none';
+      showToast('Bag saved');
+    }
+
+    function goToCheckout() {
+      if (bagOpen) {
+        const filtered = {};
+        Object.entries(currentBag).forEach(([id, val]) => {
+          if (parseFloat(val) > 0) filtered[id] = parseFloat(val);
+        });
+        if (Object.keys(filtered).length > 0) {
+          bagCart.push(filtered);
+          localStorage.setItem("bagCart", JSON.stringify(bagCart));
+        }
+        bagOpen = false;
+      }
+      window.location.href = "/checkout";
+    }
+
+    fetchProducts();
+  </script>
+</body>
+</html>

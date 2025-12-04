@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Profile - Kataya Nuts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="text-white font-sans min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-grow container mx-auto px-4 sm:px-6 py-16">
+    <div class="max-w-4xl mx-auto glass-card p-6 sm:p-8">
+      <div class="flex items-center gap-4 sm:gap-6 mb-8 fade-in">
+        <div id="avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white text-[#b51916] flex items-center justify-center text-2xl font-bold shadow-lg">
+          ?
+        </div>
+        <div>
+          <div id="username" class="text-2xl font-bold">User</div>
+          <div id="email" class="text-white/80">email</div>
+          <div id="role" class="text-sm text-white/70 mt-1"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in delay-1">
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+          <h2 class="text-lg font-semibold mb-3">Account</h2>
+          <div class="space-y-2 text-white/80 text-sm">
+            <div><span class="font-semibold text-white">Name:</span> <span id="fullName">-</span></div>
+            <div><span class="font-semibold text-white">Joined:</span> <span id="joined">-</span></div>
+          </div>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+          <h2 class="text-lg font-semibold mb-3">Actions</h2>
+          <div class="flex flex-col gap-2 text-sm">
+            <a href="/bag" class="primary-btn text-center">Create a new bag</a>
+            <button onclick="logout()" class="secondary-btn text-center">Logout</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 fade-in delay-2">
+        <h2 class="text-xl font-semibold mb-3">Order History</h2>
+        <div id="orders" class="space-y-3 text-sm">
+          <p class="text-white/70">Loading orders...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      window.location.href = '/signin';
+    }
+
+    function logout() {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('kataya_admin_token');
+      window.location.href = '/';
+    }
+
+    function setAvatar(name) {
+      const avatar = document.getElementById('avatar');
+      if (!avatar) return;
+      const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
+      avatar.textContent = initial;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      return d.toLocaleDateString();
+    }
+
+    async function loadProfile() {
+      const res = await fetch('/api/users/me', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        logout();
+        return;
+      }
+      document.getElementById('username').textContent = data.username;
+      document.getElementById('email').textContent = data.email;
+      document.getElementById('fullName').textContent = data.name;
+      document.getElementById('joined').textContent = formatDate(data.created_at);
+      document.getElementById('role').textContent = data.role === 'admin' ? 'Admin' : 'User';
+      setAvatar(data.name || data.username);
+    }
+
+    async function loadOrders() {
+      const box = document.getElementById('orders');
+      const res = await fetch('/api/users/orders', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        box.innerHTML = '<p class="text-red-200">Failed to load orders.</p>';
+        return;
+      }
+      if (!data.length) {
+        box.innerHTML = '<p class="text-white/70">No orders yet.</p>';
+        return;
+      }
+      box.innerHTML = '';
+      data.forEach(order => {
+        const div = document.createElement('div');
+        div.className = 'bg-white/5 border border-white/10 rounded-lg p-3';
+        div.innerHTML = `
+          <div class="font-semibold text-white">Order #${order.id}</div>
+          <div class="text-white/80 text-sm">${order.summary || 'No summary provided.'}</div>
+          <div class="text-white/60 text-xs mt-1">${formatDate(order.created_at)}</div>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    loadProfile();
+    loadOrders();
+  </script>
+</body>
+</html>

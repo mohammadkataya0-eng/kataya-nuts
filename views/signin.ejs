@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign In - Kataya Nuts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="text-white font-sans min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-grow container mx-auto px-4 sm:px-6 py-16 flex flex-col items-center">
+    <div class="max-w-xl w-full text-center mb-6">
+      <h1 class="text-3xl font-bold mb-3 fade-in">Welcome back</h1>
+      <p class="text-white/80 fade-in delay-1">Sign in to continue and manage your bags.</p>
+    </div>
+
+    <form id="signinForm" class="max-w-xl w-full space-y-4 glass-card p-6 sm:p-8 fade-in delay-2">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Username or Email</label>
+        <input name="identifier" required class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="username or email" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Password</label>
+        <input type="password" name="password" required class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="••••••" />
+      </div>
+      <button type="submit" class="w-full primary-btn text-center">
+        Sign In
+      </button>
+      <p id="signinMsg" class="text-center text-sm mt-2"></p>
+    </form>
+
+    <p class="text-center text-sm mt-6 fade-in delay-3">New here?
+      <a href="/signup" class="font-semibold underline hover:text-[#d89a63]">Create an account</a>
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById('signinForm');
+    const msg = document.getElementById('signinMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Signing in...';
+      msg.className = 'text-center text-sm mt-2 text-white';
+      const body = Object.fromEntries(new FormData(form));
+      const payload = { password: body.password };
+      if (body.identifier.includes('@')) {
+        payload.email = body.identifier.trim();
+      } else {
+        payload.username = body.identifier.trim();
+      }
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        msg.textContent = data.message || 'Sign-in failed';
+        msg.className = 'text-center text-sm text-red-200 mt-2';
+        return;
+      }
+
+      msg.textContent = 'Signed in! Redirecting...';
+      msg.className = 'text-center text-sm text-green-200 mt-2';
+      localStorage.setItem('userToken', data.token);
+      if (data.user && data.user.role === 'admin') {
+        localStorage.setItem('kataya_admin_token', data.token);
+      }
+      if (data.user && data.user.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/bag';
+      }
+    });
+  </script>
+</body>
+</html>

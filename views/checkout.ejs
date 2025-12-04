@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Kataya Nuts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="text-white font-sans min-h-screen flex flex-col">
+
+  <%- include('partials/header') %>
+
+  <script>
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+      window.location.href = '/signin';
+    }
+  </script>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 sm:px-6 py-16">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold mb-4 fade-in">Your Order</h1>
+      <p class="text-white/90 text-base sm:text-lg mb-8 max-w-3xl mx-auto fade-in delay-1">
+        Review your bags and send your order directly to WhatsApp. We’ll also save your order history for faster reorders.
+      </p>
+    </div>
+
+    <!-- Bag Summary -->
+    <div class="max-w-4xl mx-auto glass-card p-6 sm:p-8 text-left mb-8 fade-in delay-2">
+      <div id="bagList"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4 fade-in delay-3">
+      <a href="/bag" class="secondary-btn px-8 py-3 text-center">
+        Return to Bags
+      </a>
+      <a id="sendBtn" href="#" target="_blank"
+         class="primary-btn px-10 py-3 text-center">
+        Send Order via WhatsApp
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-white/70 text-sm">
+    &copy; <%= new Date().getFullYear() %> Kataya Nuts. All rights reserved.
+  </footer>
+
+  <script>
+    const bagCart = JSON.parse(localStorage.getItem("bagCart") || "[]");
+    const bagList = document.getElementById("bagList");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function loadItems() {
+      const res = await fetch('/api/items');
+      const items = await res.json();
+      const priceMap = {};
+      items.forEach(i => {
+        priceMap[i._id] = {
+          name: i.name,
+          price: i.pricePerKg,
+          isCountBased: i.isCountBased
+        };
+      });
+
+      if (bagCart.length === 0) {
+        bagList.innerHTML = `<p class="text-center text-lg text-gray-600">No bags found. Go fill one!</p>`;
+        sendBtn.style.display = "none";
+        return;
+      }
+
+      let message = `Hello Kataya Nuts,%0A%0AI'd like to place the following order:%0A`;
+      let plainSummary = `Hello Kataya Nuts,\n\nI'd like to place the following order:\n`;
+      let grandTotal = 0;
+
+      bagCart.forEach((bag, index) => {
+        const bagDiv = document.createElement("div");
+        bagDiv.className = "mb-6 border-b border-white/10 pb-4";
+        bagDiv.dataset.bagIndex = index;
+
+        const header = document.createElement("h3");
+        header.className = "font-bold text-xl mb-2";
+        header.textContent = `Bag ${index + 1}`;
+        bagDiv.appendChild(header);
+
+        const ul = document.createElement("ul");
+        ul.className = "list-disc list-inside space-y-1 text-sm text-white/90 pl-4";
+
+        let totalPrice = 0;
+
+        for (const [id, qty] of Object.entries(bag)) {
+          const product = priceMap[id];
+          if (!product) continue;
+
+          const quantity = parseFloat(qty);
+          const linePrice = quantity * product.price;
+          totalPrice += linePrice;
+
+          const unit = product.isCountBased ? 'pcs' : 'kg';
+          const formattedQty = product.isCountBased ? `${quantity}` : `${quantity.toFixed(2)}`;
+
+          const li = document.createElement("li");
+          li.textContent = `${product.name}: ${formattedQty} ${unit}`;
+          ul.appendChild(li);
+
+          message += `%0A- ${product.name}: ${formattedQty} ${unit}`;
+          plainSummary += `- ${product.name}: ${formattedQty} ${unit}\n`;
+        }
+
+        bagDiv.appendChild(ul);
+
+        const summary = document.createElement("div");
+        summary.className = "text-sm text-white/80 mt-2 space-y-1";
+        summary.innerHTML = `
+          <p>Estimated Price: $${totalPrice.toFixed(2)}</p>
+        `;
+        bagDiv.appendChild(summary);
+        message += `%0AEstimated Price: $${totalPrice.toFixed(2)}%0A`;
+        plainSummary += `Estimated Price: $${totalPrice.toFixed(2)}\n`;
+
+        const noteLabel = document.createElement("label");
+        noteLabel.className = "block mt-3 text-sm font-semibold text-white";
+        noteLabel.textContent = "Note for this bag:";
+        const note = document.createElement("textarea");
+        note.className = "mt-1 p-2 border border-white/20 bg-white/10 text-white w-full rounded text-sm";
+        note.placeholder = "Add a note...";
+        note.rows = 2;
+        note.dataset.bagIndex = index;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "mt-3 text-sm text-red-300 hover:text-red-100 underline";
+        deleteBtn.textContent = "Delete this bag";
+        deleteBtn.onclick = () => {
+          bagCart.splice(index, 1);
+          localStorage.setItem("bagCart", JSON.stringify(bagCart));
+          location.reload();
+        };
+
+        bagDiv.appendChild(noteLabel);
+        bagDiv.appendChild(note);
+        bagDiv.appendChild(deleteBtn);
+
+        bagList.appendChild(bagDiv);
+        grandTotal += totalPrice;
+      });
+
+      message += `%0AGrand Total: $${grandTotal.toFixed(2)}%0A`;
+      plainSummary += `Grand Total: $${grandTotal.toFixed(2)}\n`;
+
+      sendBtn.onclick = async () => {
+        const notes = bagList.querySelectorAll("textarea");
+        notes.forEach(note => {
+          const value = note.value.trim();
+          if (value) {
+            const bagIndex = parseInt(note.dataset.bagIndex) + 1;
+            message += `%0ANote for Bag ${bagIndex}: ${encodeURIComponent(value)}`;
+            plainSummary += `Note for Bag ${bagIndex}: ${value}\n`;
+          }
+        });
+
+        message += `%0A%0AThank you!`;
+        plainSummary += `\nThank you!`;
+
+        const whatsappNumber = "96171570585";
+        sendBtn.href = `https://wa.me/${whatsappNumber}?text=${message}`;
+
+        try {
+          await fetch('/api/users/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            },
+            body: JSON.stringify({ summary: plainSummary })
+          });
+        } catch (err) {
+          console.error('Failed to save order history', err);
+        }
+
+        localStorage.removeItem("bagCart");
+
+        setTimeout(() => {
+          window.location.href = "/bag";
+        }, 2000);
+      };
+    }
+
+    loadItems();
+  </script>
+
+</body>
+</html>

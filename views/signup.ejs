@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up - Kataya Nuts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="text-white font-sans min-h-screen flex flex-col">
+  <%- include('partials/header') %>
+
+  <main class="flex-grow container mx-auto px-4 sm:px-6 py-16 flex flex-col items-center">
+    <div class="max-w-xl w-full text-center mb-6">
+      <h1 class="text-3xl font-bold mb-3 fade-in">Create your account</h1>
+      <p class="text-white/80 fade-in delay-1">Sign up to save your profile and place orders faster.</p>
+    </div>
+
+    <form id="signupForm" class="max-w-xl w-full space-y-4 glass-card p-6 sm:p-8 fade-in delay-2">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Username</label>
+        <input name="username" required class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="yourusername" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Full Name</label>
+        <input name="name" required class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="Your name" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Email</label>
+        <input type="email" name="email" required class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="you@example.com" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Password</label>
+        <input type="password" name="password" required minlength="6" class="w-full px-4 py-3 rounded-lg text-gray-900" placeholder="••••••" />
+      </div>
+      <button type="submit" class="w-full primary-btn text-center">
+        Sign Up
+      </button>
+      <p id="signupMsg" class="text-center text-sm mt-2"></p>
+    </form>
+
+    <p class="text-center text-sm mt-6 fade-in delay-3">Already have an account?
+      <a href="/signin" class="font-semibold underline hover:text-[#d89a63]">Sign In</a>
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById('signupForm');
+    const msg = document.getElementById('signupMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Creating account...';
+      const body = Object.fromEntries(new FormData(form));
+
+      const res = await fetch('/api/users/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        msg.textContent = data.message || 'Signup failed';
+        msg.className = 'text-center text-sm text-red-200 mt-2';
+        return;
+      }
+
+      msg.textContent = 'Signed up! Redirecting...';
+      msg.className = 'text-center text-sm text-green-200 mt-2';
+      localStorage.setItem('userToken', data.token);
+      if (data.user && data.user.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/bag';
+      }
+    });
+  </script>
+</body>
+</html>

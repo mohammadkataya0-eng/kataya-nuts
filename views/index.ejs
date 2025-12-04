@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kataya Nuts - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-[#b51916] text-white font-sans min-h-screen flex flex-col relative">
+
+  <%- include('partials/header') %>
+
+  <!-- Hero Section -->
+  <main class="relative flex flex-col items-center justify-center flex-1 text-center px-6 py-16 sm:py-24 max-w-5xl mx-auto overflow-hidden">
+    <div class="nut-cloud">
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut cashew"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut pistachio"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+      <div class="nut almond"></div>
+    </div>
+    <img src="/images/logo.png" alt="Kataya Nuts Logo" class="w-36 sm:w-48 mb-8 drop-shadow-lg fade-in" />
+
+    <h1 class="text-4xl sm:text-6xl font-bold mb-6 fade-in delay-1 text-[#f1d6a7]">Welcome to Kataya Nuts</h1>
+
+    <p class="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed fade-in delay-2">
+      <strong>Kataya Nuts brings you the finest roasted and raw nuts, carefully selected for quality and taste.</strong><br>
+      Build your own mix by filling custom bags, and place your order with just a tap on WhatsApp.<br>
+      Whether you want 1 kilo or just a few grams, everything is fresh, premium, and just for you.
+    </p>
+
+    <p class="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed mt-6 fade-in delay-3">
+      تُحمَّص وتُعبَّأ يومياً. امزج واختر من ٥٠ غرام حتى كيلو كامل—مالح أو بدون ملح أو خلطات مخصَّصة. أرسل طلبك بلمسة على واتساب، ونحن نهتم بالتغليف والتوصيل السريع بعناية.
+    </p>
+
+    <div class="mt-12 flex flex-col sm:flex-row gap-5 fade-in delay-3">
+      <a href="/signup" class="primary-btn text-lg px-8 py-4">
+        Sign Up
+      </a>
+      <a href="/signin" class="secondary-btn text-lg px-8 py-4">
+        Sign In
+      </a>
+      <a href="/bag" class="primary-btn text-lg px-8 py-4">
+        Start Creating Your Bag
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-white/70 text-xs sm:text-sm">
+    &copy; <%= new Date().getFullYear() %> Kataya Nuts. All rights reserved.
+  </footer>
+
+  <script>
+    // Randomize nut positions, rotation, timing
+    (function randomizeNuts() {
+      const nuts = document.querySelectorAll('.nut');
+      nuts.forEach((nut, idx) => {
+        const left = 5 + Math.random() * 90; // 5% to 95%
+        const delay = 0.05 + Math.random() * 0.9; // 0.05s to 0.95s
+        const dur = 1.0 + Math.random() * 0.6; // ~1.0s to 1.6s (faster)
+        const drift = -30 + Math.random() * 60; // -30px to 30px
+        const rotStart = -50 + Math.random() * 100; // -50deg to 50deg
+        const rotEnd = -50 + Math.random() * 100;
+        const scaleBase = nut.classList.contains('pistachio') ? 0.9 : 1.0;
+        const scale = scaleBase + Math.random() * 0.35; // varied per type
+
+        nut.style.left = `${left}%`;
+        nut.style.animationDelay = `${delay}s`;
+        nut.style.setProperty('--dur', `${dur}s`);
+        nut.style.setProperty('--drift', `${drift}px`);
+        nut.style.setProperty('--rot-start', `${rotStart}deg`);
+        nut.style.setProperty('--rot-end', `${rotEnd}deg`);
+        nut.style.setProperty('--scale', scale.toFixed(2));
+        nut.style.zIndex = 1 + idx; // slight stacking variation
+      });
+    })();
+  </script>
+
+</body>
+</html>
